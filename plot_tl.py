@@ -12,9 +12,10 @@ plt.rcParams["font.family"] = "Vazir"
 
 
 def plot_timeline(chats_addr: str, plot_addr: str, rule: str) -> None:
-    def merge_names(df: pd.DataFrame, remaining_name: str, deleting_name: str) -> None:
+    def merge_names(df: pd.DataFrame, remaining_name: str, deleting_name: str) -> pd.DataFrame:
         df[remaining_name] += df[deleting_name]
         df = df.drop(deleting_name, axis=1)
+        return df
 
     df = pd.read_csv(chats_addr)
     df["Date"] = df["Date"].str.replace(r"([0-9]{2})\.([0-9]{2})\.([0-9]{4}) ", r"\3-\2-\1 ", regex=True)
@@ -22,6 +23,7 @@ def plot_timeline(chats_addr: str, plot_addr: str, rule: str) -> None:
     df["From"] = (df["From"] + " - " + df["Signed By"]).fillna(df["From"])
 
     df = df.groupby("From").resample(rule).count()["Id"].unstack(level=0).fillna(0)
+    # df = merge_names(df, remaining_name, deleting_name)
 
     print(df.columns)
     print(df)
